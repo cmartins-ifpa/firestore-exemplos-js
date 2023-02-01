@@ -61,9 +61,7 @@
       let dao = new ClienteDAO();      
       let resp = dao.findAll();
       resp.then((_data) => {
-        if (_data != null) {       
-         // _data = JSON.parse(_data);
-          console.log("Docs RETURN = ",_data);                    
+        if (_data != null) {                                   
           $('#example').DataTable({
               destroy: true,
 		          language:{"url": "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese-Brasil.json"},
