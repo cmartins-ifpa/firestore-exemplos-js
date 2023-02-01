@@ -15,7 +15,7 @@
 <body>
 
     <div class="container">
-        <h2>Adiciona/Atualiza Peidos do Cliente</h2>
+        <h2>Adiciona/Atualiza Pedidos do Cliente</h2>
         <p>Testes no banco Firestore</p>
         <form id="form">
 
@@ -78,6 +78,7 @@
             let nome = document.getElementById("nome").value.trim();
 
             dao.createObjPedido(cpf, nome);
+            // gera um "pacote" de itens (para efeito didático)
             dao.add(getItens());
             listPedidos();
             return true;

@@ -7,10 +7,7 @@ import { getFirestore, writeBatch, collection, getDocs, doc, getDoc,
 import { db, createUpdateDocument2Id, createDocument } from "../funcoes-firebase.js";
 
 import {NOME_COLECAO} from "./Cliente-dao.js";
-
 import {Pedido} from "./Pedido.js";
-
-
 
 export default class ClientePedidoDAO {
     objPedido;
@@ -123,9 +120,5 @@ export default class ClientePedidoDAO {
           
         return docs;         
     }
-
-    // metodos para trabalhar os pedidos
-
-
 
 }
