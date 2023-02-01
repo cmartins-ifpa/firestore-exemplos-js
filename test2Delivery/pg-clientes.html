@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="PT">
+
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>Consultas</h2>
+    <p>Geração de consultas e testes no banco Firestore</p>
+    <form id="form">
+      <div class="row">
+        <div class="col">
+          <input type="text" class="form-control" id="cpf" placeholder="CPF" name="cpf">
+          <button type="button" class="btn btn-primary mt-3" 
+              onclick="consultaCPF()">Consulta CPF (ID)</button>
+          
+          <button type="button" class="btn btn-primary mt-3" 
+              onclick="consultaTodos()">Consulta CPF iniciais</button>    
+        </div>
+      </div>
+    </form>
+
+  </div>
+  <p id="msg"></p>
+  <hr />
+  <p id="p1">CADASTROS DE CLIENTES</p>
+  </div>
+
+  <script type="module">
+    import ClienteDAO from "./entidades/Cliente-dao.js";
+
+    window.consultaCPF = async function consultaCPF() {
+      let dao = new ClienteDAO();
+      let cpf = document.getElementById("cpf").value;
+      let resp = dao.findById(cpf);
+      resp.then((data) => {
+        if (data != null) {
+          document.getElementById("p1").innerHTML = "<strong>CLIENTE: </strong>" + cpf;
+          document.getElementById("p1").innerHTML += "<br> " + data.nome;
+        }else
+          document.getElementById("p1").innerHTML = "<strong>CLIENTE NAO LOCALIZADO: </strong>" + cpf;        
+      });      
+      return true;
+    }
+
+    window.consultaTodos = async function consultaWhere() {
+      let dao = new ClienteDAO();
+      let cpf = document.getElementById("cpf").value;
+      let resp = dao.findByFieldWhere("cpf", ">=", cpf+"");  
+
+      resp.then((data) => {
+        if (data != null) {
+          console.log("DADOS RETORNADOS",data);
+          document.getElementById("p1").innerHTML = "<strong>QTD DE CLIENTES : </strong>" + data.length;
+          data.forEach(o => {
+            document.getElementById("p1").innerHTML += "<br> " + o.cpf + " - " + o.nome;    
+          });
+        
+        }else
+          document.getElementById("p1").innerHTML = "<strong>CLIENTE NAO LOCALIZADO: </strong>" + cpf;        
+      });      
+      return true;
+    }
+
+  </script>
+
+</body>
+
+</html>

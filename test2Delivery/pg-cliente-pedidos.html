@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="PT">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Adiciona/Atualiza Peidos do Cliente</h2>
+        <p>Testes no banco Firestore</p>
+        <form id="form">
+
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="CPF" aria-label="CPF" id="cpf" name="cpf"
+                    aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="consultaCPF()">Consulta CPF
+                        (ID)</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="nome" class="form-label">Nome do Cliente:</label>
+                    <input type="text" readonly="true" class="form-control" id="nome" placeholder="Nome" name="nome">
+                    <br>
+
+                    <button type="button" id="bt-salvar" class="btn btn-primary mt-3" onclick="salvar()">Salvar
+                        Cadastro</button>
+
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <p id="msg"></p>
+    <hr />
+    <p id="p1">PEDIDOS DO CLIENTE</p>
+    </div>
+
+    <script type="module">
+
+        import ClienteDAO from "./entidades/Cliente-dao.js";
+        import ClientePedidoDAO from "./entidades/ClientePedidos-dao.js";
+
+        var cpf;
+        // pesquisa o Cliente pelo ID (CPF) e carrega os pedidos
+        window.consultaCPF = async function consultaCPF() {
+            let dao = new ClienteDAO();
+            cpf = document.getElementById("cpf").value.trim();
+            let resp = dao.findById(cpf);
+            resp.then((data) => {
+                if (data != null) {
+                    document.getElementById("p1").innerHTML = "<strong>CLIENTE: </strong>" + cpf;
+                    document.getElementById("nome").value = data.nome;
+
+                    // $('#nome').focus();
+                } else
+                    document.getElementById("p1").innerHTML = "<strong>CLIENTE NAO LOCALIZADO: </strong>" + cpf;
+            });
+            listPedidos();
+
+            return true;
+        }
+
+        window.salvar = async function salvar() {
+            // let cpf = document.getElementById("cpf").value + "";
+            let dao = new ClientePedidoDAO(cpf);
+            let nome = document.getElementById("nome").value.trim();
+
+            dao.createObjPedido(cpf, nome);
+            dao.add(getItens());
+            listPedidos();
+            return true;
+        }
+
+        function getItens() {
+            let itens = [{
+                "item_id": "1000005",
+                "nome_item": "Peixe frito",
+                "qtd": 1,
+                "valortot": 48,
+                "sv": 1
+            },
+            {
+                "item_id": "4000003",
+                "nome_item": "Café expresso grande",
+                "qtd": 1,
+                "valortot": 2.2,
+                "sv": 1
+            },
+            {
+                "item_id": "4000004",
+                "nome_item": "Água (copo)",
+                "qtd": 2,
+                "valortot": 4,
+                "sv": 1
+            },
+            {
+                "item_id": "2000000",
+                "nome_item": "Pizza Personalizada",
+                "qtd": 1,
+                "valortot": 55.5,
+                "sv": 2,
+                "pizzas": [{
+                    "item_id": "2000004",
+                    "nome_item": "Pizza Paraense",
+                    "qtd": 0.5,
+                    "valortot": 28.0
+                },
+                {
+                    "item_id": "2000008",
+                    "nome_item": "Pizza Quatro queijos",
+                    "qtd": 0.5,
+                    "preco": 27.5,
+                }]
+                ,
+                "borda": {
+                    "idborda": "b04",
+                    "borda": "Catupiry",
+                    "valortot": 7
+                }
+            }
+            ];
+            return itens;
+        }
+
+        function listPedidos() {
+            let dao = new ClientePedidoDAO(cpf);
+            let resp = dao.findAll();
+            resp.then((data) => {
+                if (data != null) {
+                    document.getElementById("p1").innerHTML = "<strong>QTD DE PEDIDOS : </strong>" + data.length;
+                    data.forEach(o => {
+                        console.log("PEDIDO", o);
+                        let _cpf = "XXXXX"; //  "'" + String(o.cpf) + "'";
+                        document.getElementById("p1")
+                            .innerHTML += '<br> <a id="lk" href="#" onclick="atualiza(' + _cpf + ');return false;">'
+                            + _cpf + '</a> - ' + o.nome_cliente;
+                    });
+
+                } else
+                    document.getElementById("p1").innerHTML = "<strong>CLIENTE NAO POSSUI PEDIDOS: </strong>" + cpf;
+            });
+        }
+    </script>
+
+</body>
+
+</html>

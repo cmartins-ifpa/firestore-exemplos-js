@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="PT">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Adiciona/Atualiza um Cliente</h2>
+        <p>Testes no banco Firestore</p>
+        <form id="form">
+
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="CPF" aria-label="CPF" id="cpf" name="cpf"
+                    aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="consultaCPF()">Consulta CPF
+                        (ID)</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="nome" class="form-label">Nome do Cliente:</label>
+                    <input type="text" class="form-control" id="nome" placeholder="Nome" name="nome">
+
+                    <label for="sexo" class="form-label">Sexo (M/F):</label>
+                    <select class="form-control" id="sexo">
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                    </select>
+                    <br>
+                    <label for="tel1" class="form-label">Telefones:</label>
+                    <div class="input-group">
+                        <input id="tel1" type="text" class="form-control" placeholder="Telefone 1" />
+                        <span class="input-group-addon">-</span>
+                        <input id="tel2" type="text" class="form-control" placeholder="Telefone 2" />
+                    </div>
+
+                    <button type="button" id="bt-salvar" class="btn btn-primary mt-3" onclick="salvar()">Salvar
+                        Cadastro</button>
+                    <button type="button" id="bt-excluir" class="btn btn-primary mt-3"
+                        onclick="excluir()">Excluir</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <p id="msg"></p>
+    <hr />
+    <p id="p1">CADASTROS DE CLIENTES</p>
+    </div>
+
+    <script type="module">        
+        import ClienteDAO from "./entidades/Cliente-dao.js";
+
+        $(document).ready(function () {
+             console.log("listagem !");
+             listTudo();
+        });
+
+        window.consultaCPF = async function consultaCPF() {
+            let dao = new ClienteDAO();
+            let cpf = document.getElementById("cpf").value.trim();
+            let resp = dao.findById(cpf);
+            resp.then((data) => {
+                if (data != null) {
+                    document.getElementById("p1").innerHTML = "<strong>CLIENTE: </strong>" + cpf;
+                    document.getElementById("nome").value = data.nome;
+                    document.getElementById("sexo").value = data.sexo;
+
+                    document.getElementById("tel1").value = (data.telefones[0] === undefined ? "" : data.telefones[0]);
+                    document.getElementById("tel2").value = (data.telefones[1] === undefined ? "" : data.telefones[1]);
+
+                    $('#nome').focus();
+                } else
+                    document.getElementById("p1").innerHTML = "<strong>CLIENTE NAO LOCALIZADO: </strong>" + cpf;
+            });
+            return true;
+        }
+
+        window.salvar = async function salvar() {
+            let dao = new ClienteDAO();
+            let cpf = document.getElementById("cpf").value + "";
+            let nome = document.getElementById("nome").value.trim();
+
+            // pega o sexo
+            let sexoSelect = document.getElementById("sexo");
+            let selecetedIndex = sexoSelect.selectedIndex;
+
+            let sexo = $("#sexo").val(); // sexo.options[selecetedIndex];           
+
+            let telefones = [];
+            let tel1 = document.getElementById("tel1").value.trim();
+            let tel2 = document.getElementById("tel2").value.trim();
+            let ind = 0;
+            if (tel1.length > 0) telefones[ind++] = tel1;
+            if (tel2.length > 0) telefones[ind++] = tel2;
+            console.log("TELEFONES", telefones);
+
+            dao.createObjCliente(cpf, nome, sexo, telefones);
+            dao.add(cpf);
+            listTudo();
+            return true;
+        }
+
+        function listTudo() {
+            let dao = new ClienteDAO();
+
+            let resp = dao.findByFieldWhere("cpf", ">=", "0");
+            resp.then((data) => {
+                if (data != null) {
+                    document.getElementById("p1").innerHTML = "<strong>QTD DE CLIENTES : </strong>" + data.length;
+                    data.forEach(o => {
+                        let _cpf = "'" + String(o.cpf) + "'";
+                        document.getElementById("p1")
+                            .innerHTML += '<br> <a id="lk" href="#" onclick="atualiza(' + _cpf + ');return false;">'
+                            + _cpf + '</a> - ' + o.nome;
+                    });
+
+                } else
+                    document.getElementById("p1").innerHTML = "<strong>CLIENTE NAO LOCALIZADO: </strong>" + cpf;
+            });
+        }
+
+        window.atualiza = async function atualiza(cpf_) {
+            let _cpf = String(cpf_);
+
+            let dao = new ClienteDAO();
+            let data = await dao.findById(_cpf);
+            if (data != null) {
+                console.log("Ret obj DATA - ", data);
+                document.getElementById("p1").innerHTML = "<strong>CLIENTE: </strong>" + _cpf;
+                document.getElementById("cpf").value = data.cpf;
+                document.getElementById("nome").value = data.nome;
+                document.getElementById("sexo").value = data.sexo;
+                document.getElementById("tel1").value = (data.telefones[0] === undefined ? "" : data.telefones[0]);
+                document.getElementById("tel2").value = (data.telefones[1] === undefined ? "" : data.telefones[1]);
+
+                $('#nome').focus();
+                listTudo();
+            } else
+                window.alert("Erro nao esperado.  <" + _cpf + "> inexistente");
+        }
+
+        window.excluir = async function excluir() {
+            let _cpf = document.getElementById("cpf").value + "";
+            try {
+                let dao = new ClienteDAO();
+                var resultado = confirm("Deseja excluir o CPF: " + _cpf + " ?");
+                if (resultado == true) {
+                    let data = await dao.delete(_cpf);
+                    listTudo();
+                }
+            }
+            catch (err) {
+                document.getElementById("p1").innerHTML = "<strong>Falha na exclusão MSG: </strong>" + err.message;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

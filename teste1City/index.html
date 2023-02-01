@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="PT">
+
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+ 
+</head>
+
+<body>
+  <h1>Hello - Testes com Firebase</h1>
+  <div class="container">
+    <h2>Form Cadastro</h2>
+    <p>Informe os dados da cidade</p>
+
+    <form name="form_cad">
+      <div class="row">
+        <div class="col">
+          <input type="text" class="form-control" id="name" placeholder="Nome da Cidade" name="name">
+        </div>
+        <div class="col">
+          <input type="number" class="form-control" id="pop" placeholder="População" name="pop">
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary mt-3" onclick="cadForm()">Cadastrar</button>
+    </form>
+  </div>
+  <p id="msg"></p>
+  <hr />
+  <p id="p1">CIDADES NO MUNDO</p>
+  </div>
+
+  <script type="module">
+
+    import { City } from "./City.js";
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js';
+    import { getFirestore, collection, getDocs, doc, setDoc , onSnapshot,addDoc } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
+
+    import {firebaseConfig} from "./init-firebase.js";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    // Initialize Cloud Firestore and get a reference to the service
+    const db = getFirestore(app);// 
+    // console.log(collection(db, 'cities'));
+
+    const unsub = onSnapshot(
+      collection(db, "cities"),
+      (collection) => {
+        document.getElementById("p1").innerHTML = "CIDADES:";
+        collection.forEach((doc) => {
+          var obj = retornaCity(doc);
+          // aqui poderia pegar o campo "vSchema" e instanciar conforme o tipo.                   
+          document.getElementById("p1").innerHTML += "<br>" + obj.name;
+        });
+      }
+    );
+
+    function retornaCity(doc) {
+      var myJSON = JSON.stringify(doc.data());
+      var obj = JSON.parse(myJSON);
+      //  console.log(`${doc.id} => ${doc.data()}`, myJSON);
+      let c = new City();
+      c.setInstanceDoc(doc);
+      c.name = "xxxxx";
+      return obj;
+    }
+
+    window.cadForm = async  function cadastro() {
+      var nomeC = document.getElementById("name").value;
+      var pop = document.getElementById("pop").value;
+      document.getElementById("msg").innerHTML = "<br> Cadastrou " + nomeC;
+      const c = new City();
+      c.name = nomeC;
+      c.population = pop;
+     // console.log("CAD C = ", c, c.name, c.population);
+     
+     // Add a new document in collection "cities"
+      console.log("DB=",db);  
+      let data =  c.getInstanceDoc();
+      console.log("CAD C = ", data);
+       
+      // Add a new document with a generated id (uses Promises).
+      // const docRef = await addDoc(collection(db, "cities"), data );
+      // console.log("Document written with ID: ", docRef.id);
+
+     // cria a variavel para fornecer o ID ao DOC
+     let _id = c.name+"_BR";
+     
+     // Add a new document in collection "cities"
+     await setDoc(doc(db, "cities",_id),  data);
+     return true;
+    }
+
+  </script>
+
+</body>
+
+</html>

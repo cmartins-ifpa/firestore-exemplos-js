@@ -1,0 +1,66 @@
+.idea
+init-firebase.js
+**/node_modules/*
+**/.firebase
+**/.firebaserc
+**/.runtimeconfig.json
+*/npm-debug.log
+lerna-debug.log
+*~
+service-account-credentials.json
+**/package-lock.json
+# keep the root package-lock so that tools are consistent
+!/package-lock.json
+**/ui-debug.log
+**/database-debug.log
+**/firebase-debug.log
+**/pubsub-debug.log
+**/tsconfig-compile.json
+yarn.lock
+
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+/packages/**/*.js
+/packages/**/*.map
+
+# dependencies
+node_modules
+package-lock.json
+yarn.lock
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
+*.tgz
+packages/**/angular/dist
