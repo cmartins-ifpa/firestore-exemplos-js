@@ -23,4 +23,8 @@ export const createDocument = async (db, collectionName, document) => {
 // ---- Exportação das "variáveis" globais 'app' e 'db' ----- //
 export var app = initializeApp(firebaseConfig);
 export var db = getFirestore(app);// 
+
+function soma(a, b){
+  
+}
    
